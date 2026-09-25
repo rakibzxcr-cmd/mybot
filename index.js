@@ -10,9 +10,9 @@ const path       = require('path');
 // ============================================================
 // FILL THESE 3
 // ============================================================
-const TOKEN   = 'YOUR_BOT_TOKEN_HERE';
-const CHAT_ID = 'YOUR_CHAT_ID_HERE';
-const HOST    = 'https://YOUR_RAILWAY_URL_HERE';
+const TOKEN   = process.env.TOKEN;
+const CHAT_ID = process.env.CHAT_ID;
+const HOST    = process.env.HOST;
 // ============================================================
 
 const app    = express();
