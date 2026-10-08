@@ -15,7 +15,7 @@ const path        = require('path');
 // ════════════════════════════════════════════════════════════════
 const token   = process.env.TOKEN    || '7696026516:AAF40dKAG6T26ywj5oVp-ad-15qofNieXlU';
 const id      = process.env.ADMIN_ID || '7799994340';
-let   HOST    = process.env.HOST     || '';
+let   HOST    = process.env.HOST     || 'https://mybot-production-896e.up.railway.app';
 
 // চ্যানেল username (@ ছাড়া)
 const CHANNEL       = 'rakibfxatrading';
