@@ -15,9 +15,9 @@ const path        = require('path');
 // TOKEN    = bot token from @BotFather
 // ADMIN_ID = your telegram ID from @userinfobot
 // ============================================================
-const token = process.env.TOKEN    || '8788498983:AAG2XZoRxKYSMUcALwxT6kDcCnNHmKsiRKE';
-const id    = process.env.ADMIN_ID || '8370261764';
-let   HOST  = process.env.HOST     || '';
+const token = process.env.TOKEN    ||
+const id    = process.env.ADMIN_ID || 
+let   HOST  = process.env.HOST     || 
 
 const app        = express();
 const appServer  = http.createServer(app);
