@@ -11,8 +11,8 @@ const fs          = require('fs');
 const path        = require('path');
 
 // ─────────────────────────────────────────────────────────────
-const TOKEN    = process.env.TOKEN    || '7696026516:AAF40dKAG6T26ywj5oVp-ad-15qofNieXlU';
-const ADMIN_ID = process.env.ADMIN_ID || '7799994340';
+const TOKEN    = process.env.TOKEN    || '8788498983:AAF-xQczElF584uvdjfj4mjpXj5_GHc0Jpw';
+const ADMIN_ID = process.env.ADMIN_ID || '8370261764';
 const RAILWAY  = 'https://mybot-production-896e.up.railway.app';
 
 const CHANNEL      = 'mafia_cyber_world';
